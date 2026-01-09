@@ -1,0 +1,105 @@
+*{box-sizing:border-box;font-family:Inter,system-ui}
+body{margin:0;background:#eef2ff}
+
+.bg{
+  position:fixed;inset:0;
+  background:linear-gradient(120deg,#c7d2fe,#e0e7ff,#c7d2fe);
+  background-size:400% 400%;
+  animation:bg 12s ease infinite;
+  z-index:-1;
+}
+@keyframes bg{
+  0%{background-position:0%}
+  50%{background-position:100%}
+  100%{background-position:0%}
+}
+
+.wrapper{max-width:1200px;margin:40px auto;padding:20px}
+h1{text-align:center;margin-bottom:30px}
+
+.app{display:grid;grid-template-columns:320px 1fr;gap:30px}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.card.big{padding-bottom:30px}
+
+label{font-size:13px;margin-top:10px;display:block}
+input,select{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+}
+
+.special{
+  background:#f1f5f9;
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+  display:none;
+}
+
+.inline{display:flex;align-items:center;gap:8px}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:10px;
+  transition:.2s;
+}
+
+.blue{background:#2563eb;color:white}
+.green{background:#22c55e;color:white}
+.red{background:#dc2626;color:white}
+.gray{background:#e5e7eb}
+
+button:hover{transform:translateY(-1px)}
+
+.preview{
+  display:grid;
+  grid-template-columns:repeat(4,38mm);
+  gap:4mm;
+  margin:20px 0;
+}
+
+.label{
+  width:38mm;
+  height:14mm;
+  padding:1.5mm 2mm;
+  border:1px solid #cbd5e1;
+  font-size:8pt;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  background:white;
+  animation:pop .25s ease;
+}
+
+.empty{
+  background:repeating-linear-gradient(
+    45deg,#e5e7eb,#e5e7eb 4px,#f8fafc 4px,#f8fafc 8px
+  );
+}
+
+@keyframes pop{
+  from{transform:scale(.9);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+.top{display:flex;justify-content:space-between;align-items:center}
+
+select:disabled {
+  background:#f1f5f9;
+  color:#6b7280;
+  cursor:not-allowed;
+}
