@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>Medikacione etikete</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/docx@8.2.2/build/index.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js" defer></script>
 </head>
 <body>
 
@@ -22,8 +22,8 @@
     <div class="card">
       <h2>Pacijent</h2>
 
-      <label>Ime pacijenta</label>
-      <input id="patient" placeholder="Ime i prezime">
+      <label>Pacijent</label>
+      <input id="patient" placeholder="Unesite Pacijenta">
 
       <label>Soba</label>
       <select id="room">
@@ -48,7 +48,7 @@
         <option>P40</option>
         <option>Clont</option>
         <option>Vomex</option>
-        
+        <option>Jono</option>
         <option>MCP</option>
         <option>Smof</option>
         <option>Clexane</option>
@@ -87,6 +87,15 @@
         </select>
         <input id="clexaneCustom" placeholder="Upiši dozu" style="display:none">
       </div>
+      
+      <!-- JONO VOLUME -->
+      <div id="jonoBox" class="special" style="display:none;">
+        <label>Jono zapremina</label>
+        <div class="inline">
+          <label class="inline"><input type="radio" name="jonoVolume" id="jono1L" value="1L"> 1L</label>
+          <label class="inline"><input type="radio" name="jonoVolume" id="jono500" value="500ml"> 500ml</label>
+        </div>
+      </div>
       <label>Učestalost</label>
 <select id="frequency">
   <option value="1">1× (05h)</option>
@@ -109,9 +118,9 @@
 
       <button onclick="undo()" class="gray">↩ Undo</button>
       <!-- ZAMENI postojeće dugme za štampu -->
-<button id="exportWord" class="blue">
+<!-- <button id="exportWord" class="blue">
   📄 Exportuj etikete
-</button>
+</button> -->
 <button onclick="exportPDF()" class="blue">📄 Exportuj PDF</button>
       <button onclick="resetAll()" class="red">Reset</button>
     </div>
@@ -119,9 +128,6 @@
   </div>
 </div>
 
-
-
-
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
