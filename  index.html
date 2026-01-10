@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Medikacione etikete</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/docx@8.2.2/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> 
 </head>
 <body>
 
@@ -100,7 +102,10 @@
       <div id="preview" class="preview"></div>
 
       <button onclick="undo()" class="gray">↩ Undo</button>
-      <button onclick="printLabels()" class="blue">🖨 Štampaj</button>
+      <!-- ZAMENI postojeće dugme za štampu -->
+<button id="exportWord" class="blue">
+  📄 Exportuj etikete
+</button>
       <button onclick="resetAll()" class="red">Reset</button>
     </div>
 

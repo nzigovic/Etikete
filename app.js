@@ -1,4 +1,9 @@
+// =====================
+// KONSTANTE
+// =====================
 const MAX_LABELS = 32;
+const EXPORT_COUNT = 28;
+
 let labels = [];
 let history = [];
 
@@ -10,7 +15,9 @@ const TIME_SCHEMES = {
   4: ["05", "12", "18", "22"]
 };
 
+// =====================
 // ELEMENTI
+// =====================
 const patientInput = document.getElementById("patient");
 const roomSelect = document.getElementById("room");
 const drugSelect = document.getElementById("drug");
@@ -28,26 +35,27 @@ const clexaneCustom = document.getElementById("clexaneCustom");
 
 const preview = document.getElementById("preview");
 const counter = document.getElementById("counter");
+const exportBtn = document.getElementById("exportWord");
 
-// ---- UI LOGIKA ----
+// =====================
+// UI LOGIKA
+// =====================
 drugSelect.addEventListener("change", () => {
   smofBox.style.display = "none";
   clexaneBox.style.display = "none";
   customDrugInput.style.display = "none";
-
-  // default: učestalost aktivna
   frequencySelect.disabled = false;
 
   if (drugSelect.value === "Smof") {
     smofBox.style.display = "block";
-    frequencySelect.value = "1";   // Smof = 20h
-    frequencySelect.disabled = true; // ⛔ DISABLE
+    frequencySelect.value = "1";
+    frequencySelect.disabled = true;
   }
 
   if (drugSelect.value === "Clexane") {
     clexaneBox.style.display = "block";
-    frequencySelect.value = "2";   // Clexane = 08 / 20
-    frequencySelect.disabled = true; // ⛔ DISABLE
+    frequencySelect.value = "2";
+    frequencySelect.disabled = true;
   }
 
   if (drugSelect.value === "custom") {
@@ -60,7 +68,9 @@ clexaneDose.addEventListener("change", () => {
     clexaneDose.value === "custom" ? "block" : "none";
 });
 
-// ---- DODAVANJE ETIKETA ----
+// =====================
+// DODAVANJE ETIKETA
+// =====================
 function addSamePatient() {
   addLabels(false);
 }
@@ -83,10 +93,8 @@ function addLabels(clearPatient) {
       : drugSelect.value;
 
   let dose = doseInput.value;
-
   let times = TIME_SCHEMES[frequencySelect.value];
 
-  // SMOF override
   if (drugSelect.value === "Smof") {
     times = ["20"];
     drugName = smofType.value;
@@ -95,7 +103,6 @@ function addLabels(clearPatient) {
     }
   }
 
-  // CLEXANE override
   if (drugSelect.value === "Clexane") {
     times = ["08", "20"];
     dose =
@@ -127,7 +134,9 @@ function addSingleLabel(drugText, time) {
   });
 }
 
-// ---- RENDER ----
+// =====================
+// RENDER
+// =====================
 function render() {
   preview.innerHTML = "";
 
@@ -137,7 +146,7 @@ function render() {
         <div class="label filled">
           <div><strong>${labels[i].room}. ${labels[i].patient}</strong></div>
           <div>${labels[i].drug}</div>
-          <div class="time">${labels[i].time} Uhr</div>
+          <div>${labels[i].time} Uhr</div>
         </div>`;
     } else {
       preview.innerHTML += `<div class="label empty"></div>`;
@@ -147,9 +156,11 @@ function render() {
   counter.textContent = `${labels.length} / ${MAX_LABELS}`;
 }
 
-// ---- AKCIJE ----
+// =====================
+// UNDO / RESET
+// =====================
 function undo() {
-  if (history.length === 0) return;
+  if (!history.length) return;
   labels = history.pop();
   render();
 }
@@ -161,9 +172,30 @@ function resetAll() {
   render();
 }
 
-function printLabels() {
-  window.print();
-}
+// =====================
+// EXPORT U WORD (RADI)
+// =====================
 
+
+document.getElementById("exportWord").addEventListener("click", () => {
+  fetch("export.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(labels.slice(0, 28))
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "etikete.docx";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}); 
 // INIT
 render();
+
+
+
+
