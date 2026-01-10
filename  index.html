@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/docx@8.2.2/build/index.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -42,7 +44,11 @@
       <select id="drug">
         <option value="">---</option>
         <option>Meropenem</option>
-        <option>Piperacillin/Tazobactam</option>
+        <option>Tacobac</option>
+        <option>P40</option>
+        <option>Clont</option>
+        <option>Vomex</option>
+        
         <option>MCP</option>
         <option>Smof</option>
         <option>Clexane</option>
@@ -106,11 +112,14 @@
 <button id="exportWord" class="blue">
   📄 Exportuj etikete
 </button>
+<button onclick="exportPDF()" class="blue">📄 Exportuj PDF</button>
       <button onclick="resetAll()" class="red">Reset</button>
     </div>
 
   </div>
 </div>
+
+
 
 
 <script src="app.js"></script>

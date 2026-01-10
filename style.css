@@ -75,14 +75,20 @@ button:hover{transform:translateY(-1px)}
 .label{
   width:38mm;
   height:14mm;
-  padding:1.5mm 2mm;
+  padding:0.5mm 2mm;
   border:1px solid #cbd5e1;
   font-size:8pt;
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
+  /* justify-content:space-between; */
   background:white;
   animation:pop .25s ease;
+}
+.label {
+  line-height: 1;
+}
+.label {
+  line-height: 1;
 }
 
 .empty{
@@ -102,4 +108,63 @@ select:disabled {
   background:#f1f5f9;
   color:#6b7280;
   cursor:not-allowed;
+}
+
+
+
+@media print {
+  body { background:white }
+  .preview {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+
+
+.toast{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  background:#111827;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  font-size:14px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.3s;
+  z-index:9999;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+
+.label.copied {
+  outline: 2px solid #22c55e;      /* zelena */
+  outline-offset: -2px;
+  background: #ecfdf5;             /* blago zeleno */
+  transition: background 0.2s, outline 0.2s;
+}
+
+
+
+.card.big {
+  max-height: 700px;       /* ← ovde možeš menjati */
+  display: flex;
+  flex-direction: column;
+}
+
+
+.preview {
+  display: grid;
+  grid-template-columns: repeat(4, 38mm);
+  gap: 4mm;
+
+  flex: 1;                 /* ← popuni card */
+  overflow-y: auto;        /* ← scroll */
+  padding-right: 6px;
 }

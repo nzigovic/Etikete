@@ -1,8 +1,8 @@
 // =====================
 // KONSTANTE
 // =====================
-const MAX_LABELS = 32;
-const EXPORT_COUNT = 28;
+const MAX_LABELS = 100;
+const EXPORT_COUNT = 100;
 
 let labels = [];
 let history = [];
@@ -35,7 +35,6 @@ const clexaneCustom = document.getElementById("clexaneCustom");
 
 const preview = document.getElementById("preview");
 const counter = document.getElementById("counter");
-const exportBtn = document.getElementById("exportWord");
 
 // =====================
 // UI LOGIKA
@@ -135,19 +134,21 @@ function addSingleLabel(drugText, time) {
 }
 
 // =====================
-// RENDER
+// RENDER (BEZ INLINE JS)
 // =====================
 function render() {
   preview.innerHTML = "";
 
   for (let i = 0; i < MAX_LABELS; i++) {
     if (labels[i]) {
+      const l = labels[i];
       preview.innerHTML += `
         <div class="label filled">
-          <div><strong>${labels[i].room}. ${labels[i].patient}</strong></div>
-          <div>${labels[i].drug}</div>
-          <div>${labels[i].time} Uhr</div>
-        </div>`;
+          <strong>${l.room}. ${l.patient}</strong>
+          ${l.drug}<br>
+          ${l.time} Uhr
+        </div>
+      `;
     } else {
       preview.innerHTML += `<div class="label empty"></div>`;
     }
@@ -155,6 +156,29 @@ function render() {
 
   counter.textContent = `${labels.length} / ${MAX_LABELS}`;
 }
+
+// =====================
+// COPY – KLIK NA ETIKETU
+// =====================
+preview.addEventListener("click", (e) => {
+  const label = e.target.closest(".label.filled");
+  if (!label) return;
+
+  const text = label.innerText.trim();
+  navigator.clipboard.writeText(text);
+
+  // ukloni zeleno sa drugih etiketa
+  document.querySelectorAll(".label.copied")
+    .forEach(el => el.classList.remove("copied"));
+
+  // dodaj zeleno na kliknutu
+  label.classList.add("copied");
+
+  // ukloni posle 1 sekunde
+  setTimeout(() => {
+    label.classList.remove("copied");
+  }, 1000);
+});
 
 // =====================
 // UNDO / RESET
@@ -173,29 +197,67 @@ function resetAll() {
 }
 
 // =====================
-// EXPORT U WORD (RADI)
+// EXPORT PDF
 // =====================
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
 
+  // Dimenzije etikete u mm (50x50mm je standard)
+  const labelWidth = 50;
+  const labelHeight = 50;
+  
+  // Margina i broj kolona/redova
+  const margin = 5;
+  const cols = 3;
+  const rows = 5;
+  const labelsPerPage = cols * rows;
 
-document.getElementById("exportWord").addEventListener("click", () => {
-  fetch("export.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(labels.slice(0, 28))
-  })
-  .then(res => res.blob())
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "etikete.docx";
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-}); 
+  let labelIndex = 0;
+  let pageNum = 0;
+
+  while (labelIndex < labels.length) {
+    if (pageNum > 0) pdf.addPage();
+    pageNum++;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        if (labelIndex >= labels.length) break;
+
+        const l = labels[labelIndex];
+        const x = margin + col * (labelWidth + margin);
+        const y = margin + row * (labelHeight + margin);
+
+        // Granica etikete
+        pdf.rect(x, y, labelWidth, labelHeight);
+
+        // Tekst
+        pdf.setFontSize(8);
+        pdf.text(`${l.room}. ${l.patient}`, x + 2, y + 8, { maxWidth: labelWidth - 4 });
+        
+        pdf.setFontSize(7);
+        pdf.text(l.drug, x + 2, y + 18, { maxWidth: labelWidth - 4 });
+        
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, "bold");
+        pdf.text(`${l.time}h`, x + 2, y + 40);
+
+        labelIndex++;
+      }
+    }
+  }
+
+  pdf.save("etikete.pdf");
+}
+patientInput.addEventListener("input", () => {
+  const value = patientInput.value;
+  if (!value) return;
+
+  patientInput.value =
+    value.charAt(0).toUpperCase() + value.slice(1);
+});
+
+// =====================
 // INIT
+// =====================
 render();
-
-
-
-
