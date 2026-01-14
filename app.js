@@ -1,7 +1,7 @@
 // =====================
 // KONSTANTE
 // =====================
-const MAX_LABELS = 100;
+const MAX_LABELS = 79;
 const TIME_SCHEMES = {
   1: ["05"],
   2: ["05", "20"],
@@ -320,7 +320,7 @@ function addLabels(clearPatient) {
 
 function addSingleLabel(drugText, time) {
   if (labels.length >= MAX_LABELS) {
-    showNotification(`Maksimum ${MAX_LABELS} etiaketa dostignuto`, "warning");
+    showNotification(`Maksimalan broj etiketa (${MAX_LABELS}) je dostignut! Morate da odštampate pre nego što nastavite.`, "warning");
     return;
   }
 
@@ -554,108 +554,50 @@ function exportWord() {
     return;
   }
 
-  // Čekaj da se docx učita sa retry logikom
-  function tryExport(retries = 0) {
-    if (!window.docx) {
-      if (retries < 10) {
-        setTimeout(() => tryExport(retries + 1), 200);
-      } else {
-        showNotification("Docx biblioteka se nije mogla učitati. Osvežite stranicu i pokušajte ponovo.", "error");
-      }
-      return;
+  // Pripremi podatke za PHP - Formatujem svaku etiketu kao string
+  const exportData = labels.map(label => 
+    `${label.room}. ${label.patient} - ${label.drug} - ${label.time}h`
+  );
+
+  console.log("Slanje na export.php:", exportData);
+
+  // Pošalji na PHP backend
+  fetch("export.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(exportData)
+  })
+  .then(response => {
+    console.log("Odgovor sa servera:", response.status, response.statusText);
+    
+    if (!response.ok) {
+      return response.text().then(text => {
+        throw new Error(`HTTP Error ${response.status}: ${text}`);
+      });
     }
-
-    try {
-      const { Document, Packer, Table, TableRow, TableCell, Paragraph, VerticalAlign } = window.docx;
-
-      // Kreiraj redove sa etiakama
-      const tableRows = [];
-      
-      // Zaglavlje
-      tableRows.push(
-        new TableRow({
-          cells: [
-            new TableCell({ children: [new Paragraph({ text: "Soba", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Pacijent", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Lek", bold: true })] }),
-            new TableCell({ children: [new Paragraph({ text: "Vreme", bold: true })] })
-          ]
-        })
-      );
-
-      // Dodaj sve etikete kao redove
-      labels.forEach(label => {
-        tableRows.push(
-          new TableRow({
-            cells: [
-              new TableCell({
-                children: [new Paragraph(label.room)],
-                verticalAlign: VerticalAlign.CENTER
-              }),
-              new TableCell({
-                children: [new Paragraph(label.patient)],
-                verticalAlign: VerticalAlign.CENTER
-              }),
-              new TableCell({
-                children: [new Paragraph(label.drug)],
-                verticalAlign: VerticalAlign.CENTER
-              }),
-              new TableCell({
-                children: [new Paragraph(`${label.time}h`)],
-                verticalAlign: VerticalAlign.CENTER
-              })
-            ]
-          })
-        );
-      });
-
-      // Kreiraj tabelu
-      const table = new Table({
-        rows: tableRows,
-        width: { size: 100, type: "pct" }
-      });
-
-      // Kreiraj dokument
-      const doc = new Document({
-        sections: [{
-          children: [
-            new Paragraph({
-              text: "🩺 Medikacione Etikete",
-              bold: true,
-              size: 28,
-              spacing: { after: 200 }
-            }),
-            new Paragraph({
-              text: `Generisano: ${new Date().toLocaleDateString("sr-RS")} | Ukupno etiaketa: ${labels.length}`,
-              size: 20,
-              spacing: { after: 400 },
-              color: "666666"
-            }),
-            table
-          ]
-        }]
-      });
-
-      // Preuzmi fajl
-      Packer.toBlob(doc).then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `etikete_${new Date().getTime()}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showNotification(`✅ Word fajl sa ${labels.length} etiaketa je preuzet`, "success");
-      });
-
-    } catch (error) {
-      console.error("Greška pri generisanju Word-a:", error);
-      showNotification("Greška pri generisanju Word fajla. Proverite konzolu.", "error");
-    }
-  }
-
-  tryExport();
+    return response.blob();
+  })
+  .then(blob => {
+    console.log("Preuzet blob:", blob.size, "bajtova");
+    
+    // Kreiraj download link i preuzmi fajl
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `medikacione_etikete_${new Date().getTime()}.docx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification(`✅ Word sa ${labels.length} etiaketa je preuzet!`, "success");
+  })
+  .catch(error => {
+    console.error("Greška pri export-u:", error);
+    showNotification(`Greška: ${error.message}`, "error");
+  });
 }
 
 // =====================

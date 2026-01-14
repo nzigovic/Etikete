@@ -7,7 +7,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js" defer></script>
 </head>
 <body>
 
@@ -111,17 +110,14 @@
     <div class="card big">
       <div class="top">
         <h2>Pregled etiketa</h2>
-        <span id="counter">0 / 32</span>
+        <span id="counter">0 / 79</span>
       </div>
 
       <div id="preview" class="preview"></div>
 
       <button onclick="undo()" class="gray">↩ Undo</button>
-      <!-- ZAMENI postojeće dugme za štampu -->
-<!-- <button id="exportWord" class="blue">
-  📄 Exportuj etikete
-</button> -->
-<button onclick="exportPDF()" class="blue">📄 Exportuj PDF</button>
+      <button id="exportWord" class="blue">📄 Exportuj Word</button>
+      <button onclick="exportPDF()" class="blue">📄 Exportuj PDF</button>
       <button onclick="resetAll()" class="red">Reset</button>
     </div>
 
