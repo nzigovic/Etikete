@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Auth System</title>
+  <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1 id="main-title" class="auth-title">Sign In</h1>
+      <form id="login-form" class="auth-form" action="login.php" method="post">
+        <div class="input-group">
+          <input class="auth-input" name="username" placeholder="Username" required>
+        </div>
+        <div class="input-group">
+          <input class="auth-input" name="password" type="password" placeholder="Password" required>
+        </div>
+        <button class="auth-btn" type="submit">Login</button>
+      </form>
+      <div class="auth-links">
+        <a href="#" onclick="showRegister()">Create account</a> |
+        <a href="#" onclick="showForgot()">Forgot password?</a>
+      </div>
+      <div id="register" class="auth-section" style="display:none;">
+        <h1 class="auth-title">Register</h1>
+        <form class="auth-form" action="register.php" method="post">
+          <div class="input-group">
+            <input class="auth-input" name="username" placeholder="Username" required>
+          </div>
+          <div class="input-group">
+            <input class="auth-input" name="email" type="email" placeholder="Email" required>
+          </div>
+          <div class="input-group">
+            <input class="auth-input" name="password" type="password" placeholder="Password" required>
+          </div>
+          <button class="auth-btn" type="submit">Register</button>
+        </form>
+      </div>
+      <div id="forgot" class="auth-section" style="display:none;">
+        <h1 class="auth-title">Forgot Password</h1>
+        <form class="auth-form" action="forgot.php" method="post">
+          <div class="input-group">
+            <input class="auth-input" name="email" type="email" placeholder="Your email" required>
+          </div>
+          <button class="auth-btn" type="submit">Send reset code</button>
+        </form>
+      </div>
+      <div id="reset" class="auth-section" style="display:none;">
+        <h1 class="auth-title">Reset Password</h1>
+        <form class="auth-form" action="reset.php" method="post">
+          <div class="input-group">
+            <input class="auth-input" name="email" type="email" placeholder="Your email" required>
+          </div>
+          <div class="input-group">
+            <input class="auth-input" name="code" placeholder="Reset code" required>
+          </div>
+          <div class="input-group">
+            <input class="auth-input" name="password" type="password" placeholder="New password" required>
+          </div>
+          <button class="auth-btn" type="submit">Reset</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    function showRegister() {
+      document.getElementById('main-title').textContent = 'Register';
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register').style.display = 'block';
+      document.getElementById('forgot').style.display = 'none';
+      document.getElementById('reset').style.display = 'none';
+    }
+    function showForgot() {
+      document.getElementById('main-title').textContent = 'Forgot Password';
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register').style.display = 'none';
+      document.getElementById('forgot').style.display = 'block';
+      document.getElementById('reset').style.display = 'none';
+    }
+    function showReset() {
+      document.getElementById('main-title').textContent = 'Reset Password';
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register').style.display = 'none';
+      document.getElementById('forgot').style.display = 'none';
+      document.getElementById('reset').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
