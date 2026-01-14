@@ -655,10 +655,12 @@ function exportWord() {
 // =====================
 // INIT
 // =====================
-document.addEventListener("DOMContentLoaded", () => {
-  // Učitaj sačuvane etikete
-  loadLabels();
+document.addEventListener("DOMContentLoaded", async () => {
+  // Učitaj sačuvane etikete sa servera pre rendera
+  await loadLabels();
   render();
+  updateResetButtonLabel();
+  syncFrequencyLock();
   
   // Dodaj event listener za Word export
   const exportWordBtn = document.getElementById("exportWord");

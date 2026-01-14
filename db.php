@@ -1,10 +1,10 @@
 <?php
-// db.php - Secure PDO connection
+// db.php - Secure PDO connection (IONOS)
 
-$host = 'localhost';
-$db   = 'etikete_za_bolnicu';
-$user = 'root';
-$pass = '';
+$host = 'db5019395414.hosting-data.io';
+$db   = 'dbs15173896';
+$user = 'dbu1296167';
+$pass = 'Nadirdzemol200'; // lozinka iz IONOS-a
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -16,6 +16,6 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     die('Database connection failed: ' . $e->getMessage());
 }

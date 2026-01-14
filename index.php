@@ -8,10 +8,12 @@ enforce_session_timeout();
 <head>
   <meta charset="UTF-8">
   <title>Medikacione etikete</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Cpath d='M18 44l2.5-9.5L44 11l9 9L29.5 44.5 20 47z' fill='%23fff'/%3E%3Cpath d='M42 14l8 8' stroke='%23a855f7' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js" defer></script>
 </head>
 <body>
 
