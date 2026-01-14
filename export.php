@@ -1,5 +1,9 @@
 
 <?php
+require 'auth.php';
+require_login();
+enforce_session_timeout();
+
 // Maksimalan broj etiketa
 define('MAX_LABELS', 79);
 // Očisti output buffer
@@ -48,34 +52,36 @@ try {
         } else {
             $maxLabels = 28; // fallback ako ne može da pročita
         }
-        for ($i = 1; $i <= MAX_LABELS; $i++) {
-            if (array_key_exists($i - 1, $labels)) {
-                $value = $labels[$i - 1];
-                if (is_array($value)) {
-                    $value = implode(PHP_EOL, $value);
-                }
-                $template->setValue("label" . $i, trim($value));
-            } else {
-                // Important: use a single space WITHOUT trim to remove the placeholder
-                $template->setValue("label" . $i, " ");
-            }
+// ===== SAFE LABEL REPLACEMENT LOOP =====
+for ($i = 1; $i <= MAX_LABELS; $i++) {
+    if (array_key_exists($i - 1, $labels)) {
+        $value = $labels[$i - 1];
+        if (is_array($value)) {
+            $value = implode(PHP_EOL, $value);
         }
-        ob_end_clean();
-        $tmpFile = tempnam($myTemp, 'etikete_') . '.docx';
-        $template->saveAs($tmpFile);
-        $fileContent = file_get_contents($tmpFile);
-        unlink($tmpFile);
-        if (empty($fileContent)) {
-            throw new Exception("Nije moguće generisati Word fajl");
-        }
-        header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        header("Content-Disposition: attachment; filename=\"$filename\"");
-        header("Content-Length: " . strlen($fileContent));
-        header("Cache-Control: no-cache, must-revalidate");
-        header("Pragma: no-cache");
-        flush();
-        echo $fileContent;
-        exit;
+        $value = htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
+        $template->setValue("label" . $i, trim($value));
+    } else {
+        $template->setValue("label" . $i, " ");
+    }
+}
+
+// ===== SAFE DOCX OUTPUT =====
+ob_end_clean();
+
+$tmpFile = tempnam($myTemp, 'etikete_') . '.docx';
+$template->saveAs($tmpFile);
+
+$fileContent = file_get_contents($tmpFile);
+unlink($tmpFile);
+
+header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+header("Content-Disposition: attachment; filename=\"$filename\"");
+header("Cache-Control: no-cache, must-revalidate");
+header("Pragma: no-cache");
+
+echo $fileContent;
+exit;
     } else {
         ob_end_clean();
         http_response_code(500);

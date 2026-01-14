@@ -17,6 +17,7 @@
         <div class="input-group">
           <input class="auth-input" name="password" type="password" placeholder="Password" required>
         </div>
+        <input type="hidden" name="csrf_token" value="">
         <button class="auth-btn" type="submit">Login</button>
       </form>
       <div class="auth-links">
@@ -35,6 +36,7 @@
           <div class="input-group">
             <input class="auth-input" name="password" type="password" placeholder="Password" required>
           </div>
+          <input type="hidden" name="csrf_token" value="">
           <button class="auth-btn" type="submit">Register</button>
         </form>
       </div>
@@ -44,6 +46,7 @@
           <div class="input-group">
             <input class="auth-input" name="email" type="email" placeholder="Your email" required>
           </div>
+          <input type="hidden" name="csrf_token" value="">
           <button class="auth-btn" type="submit">Send reset code</button>
         </form>
       </div>
@@ -59,6 +62,7 @@
           <div class="input-group">
             <input class="auth-input" name="password" type="password" placeholder="New password" required>
           </div>
+          <input type="hidden" name="csrf_token" value="">
           <button class="auth-btn" type="submit">Reset</button>
         </form>
       </div>
@@ -86,6 +90,20 @@
       document.getElementById('forgot').style.display = 'none';
       document.getElementById('reset').style.display = 'block';
     }
+
+    async function loadCsrf() {
+      try {
+        const res = await fetch('csrf.php', { credentials: 'same-origin' });
+        const token = await res.text();
+        document.querySelectorAll('input[name="csrf_token"]').forEach(el => {
+          el.value = token;
+        });
+      } catch (e) {
+        console.error('Ne može da se učita CSRF token', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCsrf);
   </script>
 </body>
 </html>

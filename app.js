@@ -32,12 +32,15 @@ const DOM = {
   customDrug: document.getElementById("customDrug"),
   dose: document.getElementById("dose"),
   frequency: document.getElementById("frequency"),
+  customTime: document.getElementById("customTime"),
   smofBox: document.getElementById("smofBox"),
   smofType: document.getElementById("smofType"),
   smofZusatz: document.getElementById("smofZusatz"),
   clexaneBox: document.getElementById("clexaneBox"),
   clexaneDose: document.getElementById("clexaneDose"),
   clexaneCustom: document.getElementById("clexaneCustom"),
+  targinBox: document.getElementById("targinBox"),
+  targinDose: document.getElementById("targinDose"),
   jonoBox: document.getElementById("jonoBox"),
   jono1L: document.getElementById("jono1L"),
   jono500: document.getElementById("jono500"),
@@ -51,34 +54,38 @@ let history = [];
 let inputTimeout = null;
 
 // =====================
-// LOCALSTORAGE - AUTO SAVE
+// SERVER STORAGE PO KORISNIKU (AUTO SAVE)
 // =====================
-const STORAGE_KEY = "medikacione_etikete";
-
-function saveLabels() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(labels));
-}
-
-// Debounced save to avoid frequent localStorage writes
 const SAVE_DEBOUNCE_MS = 300;
 let _saveTimeout = null;
+
+async function saveLabels() {
+  try {
+    await fetch("labels.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ labels })
+    });
+  } catch (error) {
+    console.error("Greška pri čuvanju etiketa:", error);
+  }
+}
+
 function scheduleSave() {
   clearTimeout(_saveTimeout);
   _saveTimeout = setTimeout(() => saveLabels(), SAVE_DEBOUNCE_MS);
 }
 
-// Ensure saved on unload
-window.addEventListener('beforeunload', () => saveLabels());
-
-function loadLabels() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      labels = JSON.parse(saved);
-    } catch (error) {
-      console.error("Greška pri učitavanju:", error);
-      labels = [];
-    }
+async function loadLabels() {
+  try {
+    const res = await fetch("labels.php", { credentials: "same-origin" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    labels = Array.isArray(data.labels) ? data.labels : [];
+  } catch (error) {
+    console.error("Greška pri učitavanju etiketa sa servera:", error);
+    labels = [];
   }
 }
 
@@ -174,21 +181,24 @@ function handleDrugChange() {
   // Resetuj sve opcije
   DOM.smofBox.style.display = "none";
   DOM.clexaneBox.style.display = "none";
+  DOM.targinBox.style.display = "none";
   DOM.customDrug.style.display = "none";
   DOM.jonoBox.style.display = "none";
-  DOM.frequency.disabled = false;
+  DOM.customTime.value = "";
 
   // Prikazi relevantne opcije
   const drugConfig = {
     "Smof": () => {
       DOM.smofBox.style.display = "block";
       DOM.frequency.value = "1";
-      DOM.frequency.disabled = true;
     },
     "Clexane": () => {
       DOM.clexaneBox.style.display = "block";
       DOM.frequency.value = "2";
-      DOM.frequency.disabled = true;
+    },
+    "Targin": () => {
+      DOM.targinBox.style.display = "block";
+      DOM.frequency.value = "2";
     },
     "Jono": () => {
       DOM.jonoBox.style.display = "block";
@@ -203,6 +213,7 @@ function handleDrugChange() {
   };
 
   drugConfig[drug]?.();
+  syncFrequencyLock();
 }
 
 function handleClexaneDoseChange() {
@@ -216,13 +227,50 @@ function handlePatientInput() {
     if (value) {
       DOM.patient.value = value.charAt(0).toUpperCase() + value.slice(1);
     }
+    updateResetButtonLabel();
   }, 200);
+}
+
+function syncFrequencyLock() {
+  const customTimeFilled = DOM.customTime?.value.trim() !== "";
+  const forcedDrug = ["Smof", "Clexane", "Targin"].includes(DOM.drug.value);
+  DOM.frequency.disabled = customTimeFilled || forcedDrug;
+}
+
+function updateResetButtonLabel() {
+  if (!DOM.resetInputs) return;
+  const name = DOM.patient.value.trim();
+  DOM.resetInputs.textContent = name ? `🔄 Reset ( ${name} )` : "🔄 Reset polja";
+}
+
+function resetInputFields() {
+  DOM.patient.value = "";
+  DOM.room.value = "";
+  DOM.drug.value = "";
+  DOM.customDrug.value = "";
+  DOM.dose.value = "";
+  DOM.customTime.value = "";
+  DOM.frequency.value = "3";
+
+  if (DOM.smofZusatz) DOM.smofZusatz.checked = false;
+  if (DOM.clexaneDose) DOM.clexaneDose.value = "0,4";
+  if (DOM.clexaneCustom) DOM.clexaneCustom.value = "";
+  if (DOM.targinDose) DOM.targinDose.value = "5/2,5";
+  if (DOM.jono1L) DOM.jono1L.checked = false;
+  if (DOM.jono500) DOM.jono500.checked = false;
+
+  handleDrugChange();
+  updateResetButtonLabel();
+  syncFrequencyLock();
 }
 
 // Inicijalizuj event listenere
 DOM.drug.addEventListener("change", handleDrugChange);
 DOM.clexaneDose.addEventListener("change", handleClexaneDoseChange);
+DOM.targinDose?.addEventListener("change", () => {}); // placeholder to keep consistency
 DOM.patient.addEventListener("input", handlePatientInput);
+DOM.customTime?.addEventListener("input", syncFrequencyLock);
+DOM.resetInputs?.addEventListener("click", resetInputFields);
 
 // =====================
 // VALIDACIJA
@@ -271,7 +319,8 @@ function addNextPatient() {
 
 function getDrugConfig() {
   const drug = DOM.drug.value;
-  let times = TIME_SCHEMES[DOM.frequency.value];
+  const customTimeRaw = DOM.customTime.value.trim();
+  let times = customTimeRaw !== "" ? [customTimeRaw] : TIME_SCHEMES[DOM.frequency.value];
   let drugName = drug === "custom" ? DOM.customDrug.value : drug;
   let dose = DOM.dose.value;
 
@@ -281,6 +330,9 @@ function getDrugConfig() {
   } else if (drug === "Clexane") {
     times = ["08", "20"];
     dose = DOM.clexaneDose.value === "custom" ? DOM.clexaneCustom.value : DOM.clexaneDose.value;
+  } else if (drug === "Targin") {
+    times = ["08", "20"];
+    dose = DOM.targinDose?.value || dose;
   }
 
   // Jono - izbor zapremine (1L ili 500ml)

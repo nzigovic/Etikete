@@ -1,3 +1,8 @@
+<?php
+require 'auth.php';
+require_login();
+enforce_session_timeout();
+?>
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -13,13 +18,22 @@
 <div class="bg"></div>
 
 <div class="wrapper">
-  <h1>🩺 Medikacione etikete</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+    <h1 style="margin:0;"> Medikacione etikete</h1>
+    <div style="display:flex;align-items:center;gap:10px;font-weight:600;">
+      <span><?php echo htmlspecialchars($_SESSION['username'] ?? 'Korisnik', ENT_QUOTES, 'UTF-8'); ?></span>
+      <a href="logout.php" class="gray" style="padding:8px 12px;border-radius:10px;text-decoration:none;border:1px solid #ccc;">Odjava</a>
+    </div>
+  </div>
 
   <div class="app">
 
     <!-- LEVO -->
     <div class="card">
-      <h2>Pacijent</h2>
+      <div style="display:flex; align-items:center; gap:10px; justify-content:space-between;">
+        <h2 style="margin:0;">Pacijent</h2>
+        <button id="resetInputs" class="gray" type="button" style="height:30px; padding:0 8px; font-size:0.8rem; white-space:nowrap; width:auto; min-width:0;">🔄 Reset</button>
+      </div>
 
       <label>Pacijent</label>
       <input id="patient" placeholder="Unesite Pacijenta">
@@ -49,6 +63,8 @@
         <option>Vomex</option>
         <option>Jono</option>
         <option>MCP</option>
+        <option>Nov</option>
+        <option>Targin</option>
         <option>Smof</option>
         <option>Clexane</option>
         <option value="custom">Drugi (ručno)</option>
@@ -86,6 +102,16 @@
         </select>
         <input id="clexaneCustom" placeholder="Upiši dozu" style="display:none">
       </div>
+
+      <!-- TARGIN -->
+      <div id="targinBox" class="special" style="display:none;">
+        <label>Targin doza</label>
+        <select id="targinDose">
+          <option>5/2,5</option>
+          <option>10/5</option>
+          <option>20/10</option>
+        </select>
+      </div>
       
       <!-- JONO VOLUME -->
       <div id="jonoBox" class="special" style="display:none;">
@@ -102,6 +128,8 @@
   <option value="3" selected>3× (05 / 14 / 22)</option>
   <option value="4">4× (05 / 12 / 18 / 22)</option>
 </select>
+      <label>Vreme (h) – ručno</label>
+      <input id="customTime" type="number" min="0" max="23" step="1" placeholder="npr. 8 za 08h">
       <button class="blue" onclick="addSamePatient()">➕ Dodaj (isti pacijent)</button>
       <button class="green" onclick="addNextPatient()">➡ Sledeći pacijent</button>
     </div>
